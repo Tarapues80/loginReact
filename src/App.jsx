@@ -1,37 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
-import Conversor from './Conversor'
+import Conversor from './Conversor.jsx'
+import Usuarios from './Usuarios.jsx'
+import Registro from './registro.jsx'
 
 function App() {
-  //http://localhost:5173/
   const [usuario, setUsuario] = useState('')
   const [clave, setClave] = useState('')
   const [logueado, setLogueado] = useState(false)
+  const [recargar, setRecargar] = useState(false)
 
-  function cambiarUsuario(evento) {
-    setUsuario(evento.target.value)
+  function cambiarUsuario(event) {
+    setUsuario(event.target.value)
   }
 
-  function cambiarClave(evento) {
-    setClave(evento.target.value)
+  function cambiarClave(event) {
+    setClave(event.target.value)
   }
 
-  function ingresar() {
-    if (usuario === 'admin' && clave === 'admin') {
-      alert('Iniciaste sesión')
+  function recargarAhora() {
+    setRecargar(!recargar)
+  }
+
+  async function ingresar() {
+    const peticion = await fetch(`http://localhost:3000/login?usuario=${usuario}&clave=${clave}`, { credentials: 'include' })
+    if (peticion.ok) {
       setLogueado(true)
     } else {
-      alert('Usuario o contraseña incorrecto')
+      alert('Usuario o contraseña incorrectos')
     }
   }
+
+  async function validar() {
+    const peticion = await fetch('http://localhost:3000/validar', { credentials: 'include' })
+    if (peticion.ok) {
+      setLogueado(true)
+    }
+  }
+
+  useEffect(() => {
+    validar()
+  }, [])
 
   return (
     <>
       {logueado ? (
         <>
-            <Conversor />
+          <Registro recargarAhora = {recargarAhora}/>
+          <Conversor />
+          <Usuarios recargar = {recargar}/>
         </>
       ) : (
         <>
@@ -44,4 +61,6 @@ function App() {
     </>
   )
 }
-export default App;
+
+export default App
+
